@@ -1,0 +1,71 @@
+{
+  "metadata": {
+    "filename": "sample_products.json",
+    "timestamp": "2025-04-19T20:58:40.522507",
+    "source_format": "json",
+    "row_count": 3,
+    "column_count": 13,
+    "columns": [
+      "product_id",
+      "product_name",
+      "price",
+      "category",
+      "in_stock",
+      "colors",
+      "ratings",
+      "specs_display",
+      "specs_processor",
+      "specs_storage",
+      "specs_type",
+      "specs_batteryLife",
+      "specs_connectivity"
+    ]
+  },
+  "data": [
+    {
+      "product_id": "P001",
+      "product_name": "Smartphone X",
+      "price": 799.99,
+      "category": "Electronics",
+      "in_stock": true,
+      "colors": "[\"Black\", \"Silver\", \"Gold\"]",
+      "ratings": "[4.5, 4.8, 4.2, 4.7]",
+      "specs_display": "6.5 inch OLED",
+      "specs_processor": "Octa-core 2.8GHz",
+      "specs_storage": "128GB",
+      "specs_type": NaN,
+      "specs_batteryLife": NaN,
+      "specs_connectivity": NaN
+    },
+    {
+      "product_id": "P002",
+      "product_name": "Laptop Pro",
+      "price": 1299.99,
+      "category": "Electronics",
+      "in_stock": true,
+      "colors": "[\"Space Gray\", \"Silver\"]",
+      "ratings": "[4.9, 4.7, 4.8]",
+      "specs_display": "15.6 inch Retina",
+      "specs_processor": "Quad-core 3.2GHz",
+      "specs_storage": "512GB SSD",
+      "specs_type": NaN,
+      "specs_batteryLife": NaN,
+      "specs_connectivity": NaN
+    },
+    {
+      "product_id": "P003",
+      "product_name": "Wireless Headphones",
+      "price": 199.99,
+      "category": "Audio",
+      "in_stock": false,
+      "colors": "[\"Black\", \"White\", \"Blue\"]",
+      "ratings": "[4.3, 4.5, 4.0]",
+      "specs_display": NaN,
+      "specs_processor": NaN,
+      "specs_storage": NaN,
+      "specs_type": "Over-ear",
+      "specs_batteryLife": "30 hours",
+      "specs_connectivity": "Bluetooth 5.0"
+    }
+  ]
+}

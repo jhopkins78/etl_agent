@@ -1,0 +1,44 @@
+[
+  {
+    "productId": "P001",
+    "productName": "Smartphone X",
+    "price": 799.99,
+    "category": "Electronics",
+    "inStock": true,
+    "specs": {
+      "display": "6.5 inch OLED",
+      "processor": "Octa-core 2.8GHz",
+      "storage": "128GB"
+    },
+    "colors": ["Black", "Silver", "Gold"],
+    "ratings": [4.5, 4.8, 4.2, 4.7]
+  },
+  {
+    "productId": "P002",
+    "productName": "Laptop Pro",
+    "price": 1299.99,
+    "category": "Electronics",
+    "inStock": true,
+    "specs": {
+      "display": "15.6 inch Retina",
+      "processor": "Quad-core 3.2GHz",
+      "storage": "512GB SSD"
+    },
+    "colors": ["Space Gray", "Silver"],
+    "ratings": [4.9, 4.7, 4.8]
+  },
+  {
+    "productId": "P003",
+    "productName": "Wireless Headphones",
+    "price": 199.99,
+    "category": "Audio",
+    "inStock": false,
+    "specs": {
+      "type": "Over-ear",
+      "batteryLife": "30 hours",
+      "connectivity": "Bluetooth 5.0"
+    },
+    "colors": ["Black", "White", "Blue"],
+    "ratings": [4.3, 4.5, 4.0]
+  }
+]

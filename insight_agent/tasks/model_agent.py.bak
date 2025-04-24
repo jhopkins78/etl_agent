@@ -1,0 +1,295 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Model Agent Module
+
+This module provides functionality for training and evaluating machine learning models
+on structured CSV datasets. It handles supervised learning problems, specifically
+regression tasks, using multiple algorithms.
+
+The agent reads CSV files, trains models, evaluates performance, generates visualizations,
+and outputs findings in Markdown format along with a model leaderboard.
+It also supports hyperparameter tuning using GridSearchCV or Optuna (Bayesian optimization).
+"""
+
+import os
+import sys
+import time
+import pandas as pd
+import numpy as np
+from typing import List, Dict, Any, Optional, Tuple, Union
+import logging
+from datetime import datetime
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.model_selection import train_test_split, GridSearchCV
+from sklearn.linear_model import LinearRegression, Ridge, Lasso, ElasticNet
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.tree import DecisionTreeRegressor
+from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
+from sklearn.svm import SVR
+from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
+from sklearn.preprocessing import StandardScaler
+
+# Try to import XGBoost (optional)
+try:
+    import xgboost as xgb
+    XGBOOST_AVAILABLE = True
+except ImportError:
+    XGBOOST_AVAILABLE = False
+    logging.warning("XGBoost not available. Install with 'pip install xgboost' to use XGBoostRegressor.")
+
+# Try to import Optuna (optional)
+try:
+    import optuna
+    OPTUNA_AVAILABLE = True
+except ImportError:
+    OPTUNA_AVAILABLE = False
+    logging.warning("Optuna not available. Install with 'pip install optuna' to use Bayesian optimization.")
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger('model_agent')
+
+class ModelAgent:
+    """
+    Agent for training and evaluating machine learning models on structured datasets.
+    
+    This class provides methods to train regression models on CSV data, generate
+    comprehensive reports with model performance metrics, predictions, and visualizations.
+    It also supports hyperparameter tuning using GridSearchCV or Optuna.
+    """
+    
+    def __init__(self, report_path: str = None):
+        """
+        Initialize the Model Agent.
+        
+        Args:
+            report_path (str, optional): Path to the output report file.
+                If not provided, defaults to "reports/final_report.md" in the etl_agents directory.
+        """
+        if report_path is None:
+            # Use absolute path based on the etl_agents directory
+            base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            self.report_path = os.path.join(base_dir, "reports", "final_report.md")
+        else:
+            self.report_path = report_path
+            
+        # Set up paths for additional outputs
+        self.base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        self.visuals_dir = os.path.join(self.base_dir, "reports", "visuals")
+        self.leaderboard_path = os.path.join(self.base_dir, "reports", "model_leaderboard.csv")
+        self.recommendation_path = os.path.join(self.base_dir, "reports", "model_recommendation.md")
+        
+        self.ensure_dirs()
+        logger.info(f"Model Agent initialized with report path: {self.report_path}")
+        
+        # Initialize model storage
+        self.models = {}
+        self.predictions = {}
+        self.metrics = {}
+        self.best_model = None
+        self.dataset_name = None
+        self.tuning_results = {}
+        
+        # Set plot style
+        plt.style.use('seaborn-v0_8-whitegrid')
+        
+        # Define hyperparameter grids for tuning
+        self._define_param_grids()
+        
+    def ensure_dirs(self) -> None:
+        """Ensure the required directories exist."""
+        os.makedirs(os.path.dirname(self.report_path), exist_ok=True)
+        os.makedirs(self.visuals_dir, exist_ok=True)
+    
+    def _define_param_grids(self) -> None:
+        """Define hyperparameter grids for each model."""
+        self.param_grids = {
+            'KNN': {
+                'n_neighbors': [3, 5, 7, 9, 11],
+                'weights': ['uniform', 'distance'],
+                'p': [1, 2]  # 1 for Manhattan, 2 for Euclidean
+            },
+            'SVR': {
+                'C': [0.1, 1.0, 10.0],
+                'epsilon': [0.01, 0.1, 0.2],
+                'kernel': ['linear', 'rbf', 'poly']
+            },
+            'DecisionTree': {
+                'max_depth': [None, 5, 10, 15, 20],
+                'min_samples_split': [2, 5, 10],
+                'min_samples_leaf': [1, 2, 4]
+            },
+            'RandomForest': {
+                'n_estimators': [50, 100, 200],
+                'max_depth': [None, 10, 20, 30],
+                'min_samples_split': [2, 5, 10]
+            },
+            'GradientBoosting': {
+                'learning_rate': [0.01, 0.05, 0.1],
+                'n_estimators': [50, 100, 200],
+                'subsample': [0.8, 0.9, 1.0],
+                'max_depth': [3, 5, 7]
+            },
+            'Ridge': {
+                'alpha': [0.01, 0.1, 1.0, 10.0],
+                'solver': ['auto', 'svd', 'cholesky']
+            },
+            'Lasso': {
+                'alpha': [0.001, 0.01, 0.1, 1.0],
+                'selection': ['cyclic', 'random']
+            },
+            'ElasticNet': {
+                'alpha': [0.001, 0.01, 0.1, 1.0],
+                'l1_ratio': [0.1, 0.5, 0.7, 0.9]
+            }
+        }
+        
+        # Add XGBoost parameters if available
+        if XGBOOST_AVAILABLE:
+            self.param_grids['XGBoost'] = {
+                'n_estimators': [50, 100, 200],
+                'learning_rate': [0.01, 0.05, 0.1],
+                'max_depth': [3, 5, 7],
+                'subsample': [0.8, 0.9, 1.0],
+                'colsample_bytree': [0.8, 0.9, 1.0]
+            }
+    
+    def train_and_evaluate(
+        self, 
+        dataset_path: str, 
+        target_column: str,
+        tune_models: bool = False,
+        use_bayesian_optimization: bool = False,
+        n_jobs: int = -1,
+        cv: int = 5
+    ) -> Tuple[Dict, Dict, Dict]:
+        """
+        Train models and evaluate their performance on the specified dataset.
+        
+        Args:
+            dataset_path (str): Path to the CSV dataset to analyze.
+            target_column (str): Name of the column to use as the target variable.
+            tune_models (bool, optional): Whether to perform hyperparameter tuning. Defaults to False.
+            use_bayesian_optimization (bool, optional): Whether to use Bayesian optimization (Optuna) 
+                instead of grid search. Defaults to False.
+            n_jobs (int, optional): Number of parallel jobs for tuning. Defaults to -1 (all cores).
+            cv (int, optional): Number of cross-validation folds. Defaults to 5.
+            
+        Returns:
+            Tuple[Dict, Dict, Dict]: Trained models, predictions, and performance metrics.
+        """
+        try:
+            # Check if Bayesian optimization is requested but not available
+            if use_bayesian_optimization and not OPTUNA_AVAILABLE:
+                logger.warning("Optuna is not available. Falling back to GridSearchCV.")
+                use_bayesian_optimization = False
+            
+            # Validate file exists and is CSV
+            if not os.path.exists(dataset_path):
+                logger.error(f"Dataset not found: {dataset_path}")
+                return {}, {}, {}
+            
+            if not dataset_path.lower().endswith('.csv'):
+                logger.error(f"File is not a CSV: {dataset_path}")
+                return {}, {}, {}
+            
+            # Read the dataset
+            logger.info(f"Reading dataset: {dataset_path}")
+            df = pd.read_csv(dataset_path)
+            self.dataset_name = os.path.basename(dataset_path)
+            
+            # Validate target column exists
+            if target_column not in df.columns:
+                logger.error(f"Target column '{target_column}' not found in dataset")
+                return {}, {}, {}
+            
+            # Prepare data for modeling
+            X = df.drop(columns=[target_column])
+            y = df[target_column]
+            
+            # Handle non-numeric columns (one-hot encoding)
+            X = pd.get_dummies(X, drop_first=True)
+            
+            # Split data into training and testing sets (80/20)
+            X_train, X_test, y_train, y_test = train_test_split(
+                X, y, test_size=0.2, random_state=42
+            )
+            
+            logger.info(f"Data split into training ({len(X_train)} samples) and testing ({len(X_test)} samples) sets")
+            
+            # Scale features for models that benefit from scaling
+            scaler = StandardScaler()
+            X_train_scaled = scaler.fit_transform(X_train)
+            X_test_scaled = scaler.transform(X_test)
+            
+            # Store original data for models that don't need scaling
+            X_train_original = X_train.copy()
+            X_test_original = X_test.copy()
+            
+            # Train models (with or without tuning)
+            if tune_models:
+                logger.info(f"Hyperparameter tuning enabled. Method: {'Bayesian optimization' if use_bayesian_optimization else 'Grid search'}")
+                models = self._tune_models(
+                    X_train_original, 
+                    X_train_scaled, 
+                    y_train, 
+                    use_bayesian_optimization,
+                    n_jobs,
+                    cv
+                )
+            else:
+                logger.info("Training models with default parameters")
+                models = self._train_models(X_train_original, X_train_scaled, y_train)
+            
+            # Generate predictions
+            predictions = self._generate_predictions(models, X_test_original, X_test_scaled)
+            
+            # Calculate metrics
+            metrics = self._calculate_metrics(predictions, y_test)
+            
+            # Store results
+            self.models = models
+            self.predictions = predictions
+            self.metrics = metrics
+            
+            # Determine the best model based on RMSE
+            self._determine_best_model()
+            
+            # Generate visualizations
+            self._generate_visualizations(predictions, y_test)
+            
+            # Create leaderboard
+            self._create_leaderboard(tune_models)
+            
+            # Create model recommendation
+            self._create_recommendation(target_column, tune_models, use_bayesian_optimization)
+            
+            # Generate timestamp for the report
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            
+            # Generate and append report
+            report = self._generate_report(
+                dataset_path, 
+                target_column, 
+                X.columns.tolist(), 
+                metrics, 
+                predictions, 
+                y_test, 
+                timestamp,
+                tune_models,
+                use_bayesian_optimization
+            )
+            
+            with open(self.report_path, 'a') as f:
+                f.write(report)
+            
+            logger.info(f"Model training report successfully appended to {self.report_path}")
+            return models, predictions, metrics
+            
+        except Exception as e:
+            logger.error(f"Error during model training:

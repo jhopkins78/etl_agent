@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Insight Agent Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* Base styles and dark mode theme */
+    :root {
+      --color-primary: #3b82f6;
+      --color-primary-dark: #60a5fa;
+      --color-secondary: #8b5cf6;
+      --color-secondary-dark: #a78bfa;
+      --color-success: #10b981;
+      --color-success-dark: #34d399;
+      --color-background: #f9fafb;
+      --color-background-dark: #111827;
+      --color-card: #ffffff;
+      --color-card-dark: #1f2937;
+      --color-card-alt: #f3f4f6;
+      --color-card-alt-dark: #374151;
+      --color-border: #e5e7eb;
+      --color-border-dark: #4b5563;
+      --color-text: #111827;
+      --color-text-dark: #f9fafb;
+      --color-text-secondary: #6b7280;
+      --color-text-secondary-dark: #9ca3af;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--color-background-dark);
+      color: var(--color-text-dark);
+      line-height: 1.5;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+    
+    header {
+      background-color: var(--color-card-dark);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      padding: 1rem 0;
+      margin-bottom: 2rem;
+    }
+    
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .logo-icon {
+      width: 2rem;
+      height: 2rem;
+      border-radius: 9999px;
+      background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+    }
+    
+    .logo-text {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    
+    nav {
+      display: flex;
+      gap: 1rem;
+    }
+    
+    nav a {
+      color: var(--color-text-dark);
+      text-decoration: none;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    
+    nav a:hover {
+      color: var(--color-primary-dark);
+    }
+    
+    .card {
+      background-color: var(--color-card-dark);
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+    
+    .card-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+    }
+    
+    .card-content {
+      background-color: var(--color-card-alt-dark);
+      border-radius: 1.5rem;
+      padding: 1.5rem;
+      min-height: 200px;
+    }
+    
+    .grid {
+      display: grid;
+      gap: 1.5rem;
+    }
+    
+    .grid-cols-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .grid-cols-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .visualization-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1rem;
+    }
+    
+    .visualization-item {
+      background-color: var(--color-card-alt-dark);
+      border-radius: 1rem;
+      padding: 1rem;
+      aspect-ratio: 4/3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    
+    .visualization-placeholder {
+      width: 80%;
+      height: 70%;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-radius: 0.5rem;
+      margin-bottom: 0.5rem;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .visualization-title {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--color-text-secondary-dark);
+    }
+    
+    .tab-container {
+      display: flex;
+      border-bottom: 1px solid var(--color-border-dark);
+      margin-bottom: 1rem;
+    }
+    
+    .tab {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--color-text-secondary-dark);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    
+    .tab.active {
+      color: var(--color-primary-dark);
+      border-bottom-color: var(--color-primary-dark);
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      outline: none;
+    }
+    
+    .btn-primary {
+      background-color: var(--color-primary);
+      color: white;
+    }
+    
+    .btn-secondary {
+      background-color: var(--color-card-alt-dark);
+      color: var(--color-text-dark);
+    }
+    
+    @media (max-width: 768px) {
+      .grid-cols-3,
+      .grid-cols-2,
+      .visualization-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      nav {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <div class="logo">
+          <div class="logo-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M11.251.068a.5.5 0 0 1 .227.58L9.677 6.5H13a.5.5 0 0 1 .364.843l-8 8.5a.5.5 0 0 1-.842-.49L6.323 9.5H3a.5.5 0 0 1-.364-.843l8-8.5a.5.5 0 0 1 .615-.09z"/>
+            </svg>
+          </div>
+          <div class="logo-text">Insight Agent Dashboard</div>
+        </div>
+        
+        <nav>
+          <a href="#full-report">Full Report</a>
+          <a href="#eda">EDA</a>
+          <a href="#visualizations">Visualizations</a>
+          <a href="#modeling">Modeling</a>
+          <a href="#evaluation">Evaluation</a>
+          <a href="#execution-summary">Execution Summary</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+  
+  <main class="container">
+    <!-- Full Report Section -->
+    <div id="full-report" class="card">
+      <div class="card-header">
+        <h2 class="card-title">Full Report</h2>
+        <div style="display: flex; gap: 0.5rem;">
+          <button class="btn btn-secondary">Download .md</button>
+          <button class="btn btn-secondary">Download .pdf</button>
+          <button class="btn btn-secondary">Download Visuals</button>
+        </div>
+      </div>
+      <div class="tab-container">
+        <div class="tab active">Full Report</div>
+      </div>
+      <div class="card-content">
+        <h1>Ames Housing Price Analysis</h1>
+        <p>This report presents a comprehensive analysis of the Ames Housing dataset, focusing on predicting home sale prices based on various property features.</p>
+      </div>
+    </div>
+    
+    <!-- EDA Console Section -->
+    <div id="eda" class="card">
+      <div class="card-header">
+        <h2 class="card-title">EDA Console</h2>
+      </div>
+      <div class="tab-container">
+        <div class="tab active">Data Overview</div>
+        <div class="tab">Feature Analysis</div>
+        <div class="tab">Correlations</div>
+        <div class="tab">Distributions</div>
+      </div>
+      <div class="card-content">
+        <h2>Dataset Summary</h2>
+        <p>Exploratory Data Analysis of the Ames Housing dataset with 2,930 rows and 79 columns.</p>
+      </div>
+    </div>
+    
+    <!-- Visualization Console Section -->
+    <div id="visualizations" class="card">
+      <div class="card-header">
+        <h2 class="card-title">Visualization Console</h2>
+      </div>
+      <div class="card-content">
+        <div class="visualization-grid">
+          <div class="visualization-item">
+            <div class="visualization-placeholder"></div>
+            <div class="visualization-title">Price Distribution</div>
+          </div>
+          <div class="visualization-item">
+            <div class="visualization-placeholder"></div>
+            <div class="visualization-title">Quality vs Price</div>
+          </div>
+          <div class="visualization-item">
+            <div class="visualization-placeholder"></div>
+            <div class="visualization-title">Area vs Price</div>
+          </div>
+          <div class="visualization-item">
+            <div class="visualization-placeholder"></div>
+            <div class="visualization-title">Year Built Histogram</div>
+          </div>
+          <div class="visualization-item">
+            <div class="visualization-placeholder"></div>
+            <div class="visualization-title">Neighborhood Boxplot</div>
+          </div>
+          <div class="visualization-item">
+            <div class="visualization-placeholder"></div>
+            <div class="visualization-title">Correlation Heatmap</div>
+          </div>
+          <div class="visualization-item">
+            <div class="visualization-placeholder"></div>
+            <div class="visualization-title">Feature Importance</div>
+          </div>
+          <div class="visualization-item">
+            <div class="visualization-placeholder"></div>
+            <div class="visualization-title">Pair Plot</div>
+          </div>
+          <div class="visualization-item">
+            <div class="visualization-placeholder"></div>
+            <div class="visualization-title">Residual Analysis</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Modeling Console Section -->
+    <div id="modeling" class="card">
+      <div class="card-header">
+        <h2 class="card-title">Modeling Console</h2>
+      </div>
+      <div class="tab-container">
+        <div class="tab active">Model Performance</div>
+        <div class="tab">ROC Curves</div>
+        <div class="tab">Learning Curves</div>
+        <div class="tab">Feature Importance</div>
+      </div>
+      <div class="card-content">
+        <h2>Model Comparison</h2>
+        <p>Performance metrics for Gradient Boosting (R² = 0.912), Random Forest (R² = 0.895), and Linear Regression (R² = 0.712).</p>
+      </div>
+    </div>
+    
+    <!-- Evaluation Console Section -->
+    <div id="evaluation" class="card">
+      <div class="card-header">
+        <h2 class="card-title">Evaluation Console</h2>
+      </div>
+      <div class="tab-container">
+        <div class="tab active">Model Evaluation</div>
+        <div class="tab">Prediction Analysis</div>
+        <div class="tab">Cross-Validation</div>
+        <div class="tab">Error Analysis</div>
+      </div>
+      <div class="card-content">
+        <h2>Performance Metrics</h2>
+        <p>R² Score: 0.912, RMSE: $17,854, MAE: $12,219</p>
+      </div>
+    </div>
+    
+    <!-- Execution Summary Section -->
+    <div id="execution-summary" class="card">
+      <div class="card-header">
+        <h2 class="card-title">Execution Summary</h2>
+        <button class="btn btn-secondary">Export Summary</button>
+      </div>
+      <div class="tab-container">
+        <div class="tab active">Executive Summary</div>
+        <div class="tab">Key Findings</div>
+        <div class="tab">Recommendations</div>
+        <div class="tab">Next Steps</div>
+      </div>
+      <div class="card-content">
+        <h2>Project Overview</h2>
+        <p>This analysis examined the Ames Housing dataset to develop a predictive model for home prices. The dataset contains 79 explanatory variables describing various aspects of residential homes.</p>
+      </div>
+    </div>
+    
+    <!-- Agent Console Section -->
+    <div class="card">
+      <div class="card-header">
+        <h2 class="card-title">Agent Console</h2>
+      </div>
+      <div class="card-content" style="display: flex; flex-direction: column; height: 300px;">
+        <div style="flex: 1; overflow-y: auto; margin-bottom: 1rem; background-color: rgba(255, 255, 255, 0.05); border-radius: 0.5rem; padding: 1rem;">
+          <p>Chat history will appear here</p>
+        </div>
+        <div style="display: flex; gap: 0.5rem;">
+          <input type="text" placeholder="Ask a question about the analysis..." style="flex: 1; padding: 0.75rem 1rem; border-radius: 0.5rem; background-color: rgba(255, 255, 255, 0.1); border: 1px solid var(--color-border-dark); color: var(--color-text-dark);">
+          <button class="btn btn-primary">Send</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

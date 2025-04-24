@@ -1,0 +1,6 @@
+id,firstName,lastName,email,phone,signupDate,status
+1,John,Doe,john.doe@example.com,555-123-4567,2025-01-15,active
+2,Jane,Smith,jane.smith@example.com,555-987-6543,2025-02-20,active
+3,Robert,Johnson,robert.j@example.com,555-456-7890,2025-03-05,inactive
+4,Sarah,Williams,sarah.w@example.com,555-789-0123,2025-03-10,active
+5,Michael,Brown,michael.b@example.com,555-234-5678,2025-04-01,pending

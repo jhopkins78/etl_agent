@@ -1,0 +1,11 @@
+README.md
+setup.py
+etl_agents.egg-info/PKG-INFO
+etl_agents.egg-info/SOURCES.txt
+etl_agents.egg-info/dependency_links.txt
+etl_agents.egg-info/requires.txt
+etl_agents.egg-info/top_level.txt
+insight_agent/__init__.py
+insight_agent/insight_agent.py
+insight_agent/tasks/__init__.py
+insight_agent/tasks/eda_agent.py

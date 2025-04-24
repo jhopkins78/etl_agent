@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Insight Agent Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Light mode colors */
+      --color-background: #f8fafc;
+      --color-card: #ffffff;
+      --color-card-alt: #f1f5f9;
+      --color-border: #e2e8f0;
+      --color-text: #0f172a;
+      --color-text-secondary: #64748b;
+      --color-text-tertiary: #94a3b8;
+      --color-primary: #3b82f6;
+      --color-primary-light: #60a5fa;
+      --color-primary-dark: #2563eb;
+      --color-success: #10b981;
+      --color-warning: #f59e0b;
+      --color-danger: #ef4444;
+      --color-info: #06b6d4;
+      
+      /* Spacing */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2rem;
+      
+      /* Border radius */
+      --radius-sm: 0.25rem;
+      --radius-md: 0.5rem;
+      --radius-lg: 0.75rem;
+      --radius-xl: 1rem;
+      --radius-2xl: 1.5rem;
+      --radius-full: 9999px;
+      
+      /* Shadows */
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .dark {
+      --color-background: #0f172a;
+      --color-card: #1e293b;
+      --color-card-alt: #334155;
+      --color-border: #475569;
+      --color-text: #f8fafc;
+      --color-text-secondary: #cbd5e1;
+      --color-text-tertiary: #94a3b8;
+      --color-primary: #3b82f6;
+      --color-primary-light: #60a5fa;
+      --color-primary-dark: #2563eb;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--color-background);
+      color: var(--color-text);
+      line-height: 1.5;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: auto 1fr;
+      min-height: 100vh;
+    }
+    
+    .header {
+      background-color: var(--color-card);
+      border-bottom: 1px solid var(--color-border);
+      padding: var(--space-md);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+    
+    .main {
+      padding: var(--space-lg);
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      grid-template-rows: auto 1fr 1fr;
+      gap: var(--space-lg);
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    
+    .card {
+      background-color: var(--color-card);
+      border-radius: var(--radius-2xl);
+      padding: var(--space-lg);
+      box-shadow: var(--shadow-sm);
+      transition: background-color 0.3s, box-shadow 0.3s;
+    }
+    
+    .card:hover {
+      box-shadow: var(--shadow-md);
+    }
+    
+    .card-alt {
+      background-color: var(--color-card-alt);
+      border-radius: var(--radius-xl);
+      padding: var(--space-md);
+      transition: background-color 0.3s;
+    }
+    
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.25rem 0.5rem;
+      border-radius: var(--radius-full);
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+    
+    .badge-primary {
+      background-color: var(--color-primary);
+      color: white;
+    }
+    
+    .badge-success {
+      background-color: var(--color-success);
+      color: white;
+    }
+    
+    .badge-warning {
+      background-color: var(--color-warning);
+      color: white;
+    }
+    
+    .badge-neutral {
+      background-color: var(--color-text-tertiary);
+      color: white;
+    }
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.5rem 1rem;
+      border-radius: var(--radius-lg);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      outline: none;
+    }
+    
+    .btn-primary {
+      background-color: var(--color-primary);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--color-primary-dark);
+    }
+    
+    .btn-secondary {
+      background-color: var(--color-card-alt);
+      color: var(--color-text);
+    }
+    
+    .btn-secondary:hover {
+      background-color: var(--color-border);
+    }
+    
+    .btn-sm {
+      padding: 0.25rem 0.5rem;
+      font-size: 0.875rem;
+    }
+    
+    .tab-container {
+      display: flex;
+      border-bottom: 1px solid var(--color-border);
+      margin-bottom: var(--space-md);
+    }
+    
+    .tab {
+      padding: var(--space-sm) var(--space-md);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+    
+    .tab:hover {
+      color: var(--color-primary);
+    }
+    
+    .tab-active {
+      color: var(--color-primary);
+      border-bottom-color: var(--color-primary);
+    }
+    
+    .workflow-step {
+      display: flex;
+      align-items: flex-start;
+      padding: var(--space-md);
+      border-radius: var(--radius-lg);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .workflow-step:hover {
+      background-color: var(--color-card-alt);
+    }
+    
+    .workflow-step-active {
+      background-color: var(--color-card-alt);
+    }
+    
+    .workflow-step-indicator {
+      width: 2rem;
+      height: 2rem;
+      border-radius: var(--radius-full);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: var(--color-text-tertiary);
+      color: white;
+      font-weight: 500;
+    }
+    
+    .workflow-step-indicator-active {
+      background-color: var(--color-primary);
+    }
+    
+    .workflow-step-indicator-completed {
+      background-color: var(--color-success);
+    }
+    
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      height: 300px;
+      overflow-y: auto;
+      padding: var(--space-md);
+      background-color: var(--color-card-alt);
+      border-radius: var(--radius-xl);
+    }
+    
+    .chat-message {
+      max-width: 80%;
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius-lg);
+      margin-bottom: var(--space-sm);
+    }
+    
+    .chat-message-user {
+      background-color: var(--color-primary);
+      color: white;
+      align-self: flex-end;
+      border-top-right-radius: 0;
+    }
+    
+    .chat-message-agent {
+      background-color: var(--color-card);
+      color: var(--color-text);
+      align-self: flex-start;
+      border-top-left-radius: 0;
+    }
+    
+    .chat-input {
+      width: 100%;
+      padding: var(--space-md);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+      background-color: var(--color-card);
+      color: var(--color-text);
+      resize: none;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    
+    .chat-input:focus {
+      border-color: var(--color-primary);
+    }
+    
+    .table-container {
+      overflow-x: auto;
+    }
+    
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .table-header {
+      padding: var(--space-sm) var(--space-md);
+      text-align: left;
+      font-weight: 500;
+      color: var(--color-text-secondary);
+      border-bottom: 1px solid var(--color-border);
+    }
+    
+    .table-cell {
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: 1px solid var(--color-border);
+    }
+    
+    .table-cell-numeric {
+      text-align: right;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+    
+    .table-row-hover:hover {
+      background-color: var(--color-card-alt);
+    }
+    
+    .model-row {
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .model-row:hover {
+      background-color: var(--color-card-alt);
+    }
+    
+    .model-row-expanded {
+      background-color: var(--color-card-alt);
+    }
+    
+    .model-details {
+      padding: var(--space-lg);
+      background-color: var(--color-card-alt);
+      border-bottom: 1px solid var(--color-border);
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--color-border);
+      background-color: var(--color-card);
+      color: var(--color-text);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    
+    .form-input:focus {
+      border-color: var(--color-primary);
+    }
+    
+    .glow {
+      box-shadow: 0 0 10px rgba(59, 130, 246, 0.3);
+    }
+    
+    /* Dark mode toggle */
+    .theme-toggle {
+      position: relative;
+      width: 3rem;
+      height: 1.5rem;
+      border-radius: var(--radius-full);
+      background-color: var(--color-card-alt);
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    
+    .theme-toggle-thumb {
+      position: absolute;
+      top: 0.125rem;
+      left: 0.125rem;
+      width: 1.25rem;
+      height: 1.25rem;
+      border-radius: var(--radius-full);
+      background-color: var(--color-primary);
+      transition: transform 0.3s;
+    }
+    
+    .theme-toggle-active .theme-toggle-thumb {
+      transform: translateX(1.5rem);
+    }
+    
+    /* Grid layout for specific components */
+    .assignment-upload {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    
+    .workflow-status {
+      grid-column: 1;
+      grid-row: 2 / span 2;
+    }
+    
+    .insight-viewer {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+    }
+    
+    .agent-console {
+      grid-column: 2;
+      grid-row: 3;
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 1024px) {
+      .main {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+      }
+      
+      .assignment-upload,
+      .workflow-status,
+      .insight-viewer,
+      .agent-console {
+        grid-column: 1;
+        grid-row: auto;
+      }
+    }
+    
+    /* Animations */
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+    
+    .animate-pulse {
+      animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+    
+    .animate-spin {
+      animation: spin 1s linear infinite;
+    }
+  </style>
+</head>
+<body class="dark">
+  <div class="dashboard">
+    <header class="header">
+      <div class="flex items-center">
+        <h1 class="text-xl font-semibold">Insight Agent Dashboard</h1>
+        <span class="badge badge-primary" style="margin-left: 0.5rem;">Data Science</span>
+      </div>
+      
+      <div style="display: flex; align-items: center; gap: 1rem;">
+        <div class="theme-toggle theme-toggle-active" id="themeToggle">
+          <div class="theme-toggle-thumb"></div>
+        </div>
+        
+        <div style="display: flex; align-items: center;">
+          <div style="width: 2rem; height: 2rem; border-radius: 9999px; background-color: var(--color-primary); display: flex; align-items: center; justify-content: center; color: white;">
+            <span style="font-size: 0.875rem; font-weight: 500;">DS</span>
+          </div>
+          <div style="margin-left: 0.5rem;">
+            <p style="font-size: 0.875rem; font-weight: 500;">Data Scientist</p>
+            <p style="font-size: 0.75rem; color: var(--color-text-secondary);">Admin</p>
+          </div>
+        </div>
+      </div>
+    </header>
+    
+    <main class="main">
+      <div class="card assignment-upload">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+          <h2 style="font-size: 1.125rem; font-weight: 600;">Assignment Upload</h2>
+          <span class="badge badge-primary">Required</span>
+        </div>
+        
+        <div style="border: 2px dashed var(--color-border); border-radius: 1.5rem; padding: 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; cursor: pointer; transition: all 0.3s;">
+          <div style="width: 4rem; height: 4rem; border-radius: 9999px; background-color: rgba(59, 130, 246, 0.1); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" style="width: 2rem; height: 2rem; color: var(--color-primary);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+          </div>
+          <h3 style="font-size: 1.125rem; font-weight: 500; margin-bottom: 0.25rem;">Drop your dataset here</h3>
+          <p style="color: var(--color-text-secondary); margin-bottom: 1rem;">
+            Supports CSV, Excel, or JSON files
+          </p>
+          <button class="btn btn-primary" style="padding-left: 1.5rem; padding-right: 1.5rem;">
+            Browse Files
+          </button>
+        </div>
+        
+        <div style="margin-top: 1rem;">
+          <div style="display: flex; align-items: center; justify-content: space-between; font-size: 0.875rem; color: var(--color-text-secondary);">
+            <span>Maximum file size: 100MB</span>
+            <span>Supported formats: .csv, .xlsx, .json</span>
+          </div>
+        </div>
+        
+        <div style="margin-top: 2rem;">
+          <h3 style="font-size: 1rem; font-weight: 500; margin-bottom: 0.5rem;">Recent Uploads</h3>
+          <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.5rem; border-radius: 0.75rem; background-color: var(--color-card-alt);">
+              <div style="display: flex; align-items: center;">
+                <div style="width: 2rem; height: 2rem; border-radius: 0.5rem; background-color: rgba(59, 130, 246, 0.1); display: flex; align-items: center; justify-content: center;">
+                  <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem; color: var(--color-primary);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </div>
+                <div style="margin-left: 0.5rem;">
+                  <p style="font-size: 0.875rem; font-weight: 500;">housing_data.csv</p>
+                  <p style="font-size: 0.75rem; color: var(--color-text-secondary);">2.4 MB • 2 hours ago</p>
+                </div>
+              </div>
+              <span class="badge badge-success">Processed</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card workflow-status">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+          <h2 style="font-size: 1.125rem; font-weight: 600;">Workflow Status</h2>
+          <div style="display: flex; align-items: center;">
+            <span class="badge badge-primary" style="margin-right: 0.5rem;">Step 1 of 4</span>
+          </div>
+        </div>
+        
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="workflow-step workflow-step-active">
+            <div class="workflow-step-indicator workflow-step-indicator-active">
+              <span>1</span>
+            </div>
+            
+            <div style="margin-left: 1rem; flex: 1;">
+              <h3 style="font-size: 1rem; font-weight: 500;">Data Preparation</h3>
+              <p style="font-size: 0.875rem; color: var(--color-text-secondary);">Clean and prepare dataset for analysis</p>
+            </div>
+            
+            <div>
+              <span style="font-size: 0.875rem; color: var(--color-primary);">In Progress</span>
+            </div>
+          </div>
+          
+          <div class="workflow-step">
+            <div class="workflow-step-indicator">
+              <span>2</span>
+            </div>
+            
+            <div style="margin-left: 1rem; flex: 1;">
+              <h3 style="font-size: 1rem; font-weight: 500;">Model Training</h3>
+              <p style="font-size: 0.875rem; color: var(--color-text-secondary);">Train and tune machine learning models</p>
+            </div>
+            
+            <div>
+              <button class="btn btn-primary btn-sm">
+                Start
+              </button>
+            </div>
+          </div>
+          
+          <div class="workflow-step workflow-step-disabled">
+            <div class="workflow-step-indicator">
+              <span>3</span>
+            </div>
+            
+            <div style="margin-left: 1rem; flex: 1;">
+              <h3 style="font-size: 1rem; font-weight: 500;">Model Evaluation</h3>
+              <p style="font-size: 0.875rem; color: var(--color-text-secondary);">Evaluate model performance metrics</p>
+            </div>
+          </div>
+          
+          <div class="workflow-step workflow-step-disabled">
+            <div class="workflow-step-indicator">
+              <span>4</span>
+            </div>
+            
+            <div style="margin-left: 1rem; flex: 1;">
+              <h3 style="font-size: 1rem; font-weight: 500;">Insight Generation</h3>
+              <p style="font-size: 0.875rem; color: var(--color-text-secondary);">Generate insights from model results</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card insight-viewer">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+          <h2 style="font-size: 1.125rem; font-weight: 600;">Insight Viewer</h2>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <button class="btn btn-secondary btn-sm" style="display: flex; align-items: center;">
+              <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem; margin-right: 0.25rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Download .md
+            </button>
+            <button class="btn btn-secondary btn-sm" style="display: flex; align-items: center;">
+              <svg xmlns="http://www.w3.org/2000/svg" style="width: 1rem; height: 1rem; margin-right: 0.25rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Download .pdf
+            </button>
+          </div>
+        </div>
+        
+        <div class="tab-container">
+          <div class="tab tab-active">
+            Full Report
+          </div>
+          <div class="tab">
+            EDA
+          </div>
+          <div class="tab">
+            Modeling
+          </div>
+          <div class="tab">
+            Evaluation
+          </div>
+          <div class="tab">
+            GPT Summary
+          </div>
+        </div>
+        
+        <div style="background-color: var(--color-card-alt); border-radius: 1.5rem; padding: 1.5rem; margin-top: 1rem; height: 500px; overflow-y: auto;">
+          <div style="max-width: none;">
+            <h1>Complete Analysis Report</h1>
+            <h2>1. Introduction</h2>
+            <p>This report presents a comprehensive analysis of housing price data, including exploratory data analysis, modeling approaches, and key findings.</p>
+            
+            <h2>2. Dataset Overview</h2>
+            <p>The dataset contains 1,460 observations with 81 variables including the target variable 'SalePrice'. The data covers residential homes sold in Ames, Iowa between 2006 and 2010.</p>
+            
+            <h2>3. Exploratory Data Analysis</h2>
+            <h3>3.1 Price Distribution</h3>
+            <p>The sale prices follow a right-skewed distribution with a median of $163,000 and mean of $180,921, indicating the presence of some high-value outliers.</p>
+            
+            <h3>3.2 Correlations</h3>
+            <p>The variables most correlated with sale price are:</p>
+            <ul>
+              <li>Overall Quality (0.79)</li>
+              <li>Above Ground Living Area (0.71)</li>
+              <li>Garage Cars (0.64)</li>
+              <li>Garage Area (0.62)</li>
+              <li>Total Basement Square Feet (0.61)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <div class="card agent-console">
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem;">
+          <h2 style="font-size: 1.125rem; font-weight: 600;">Agent Console</h2>
+          <span class="badge badge-primary">GPT-4</span>
+        </div>
+        
+        <div class="chat-container">
+          <div class="chat-message chat-message-agent glow">
+            Hello! I'm your Insight Agent. How can I help you understand the analysis?
+          </div>
+          
+          <div class="chat-message chat-message-user">
+            What was the most important feature in the model?
+          </div>
+          
+          <div class="chat-message chat-message-agent glow">
+            Based on the analysis, the most important feature is "Overall Quality" with a relative importance of 100%. This is followed by "Ground Living Area" (87%) and "Total Basement Square Feet" (65%).
+          </div>
+        </div>
+        
+        <div style="margin-bottom: 1rem;">
+          <div style="font-size: 0.875rem; font-weight: 500; margin-bottom: 0.25rem;">Suggested Queries:</div>
+          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+            <button style="font-size: 0.875rem; padding: 0.25rem 0.5rem; border-radius: 9999px; background-color: var(--color-card-alt); transition: all 0.2s;">
+              Is the model underfitting?
+            </button>
+            <button style="font-size: 0.875rem; padding: 0.25rem 0.5rem; border-radius: 9999px; background-color: var(--color-card-alt); transition: all 0.2s;">
+              How accurate is the model?
+            </button>
+          </div>
+        </div>
+        
+        <div style="display: flex; align-items: flex-end;">
+          <textarea class="chat-input" placeholder="Ask me about the analysis..." rows="2"></textarea>
+          <button class="btn btn-primary" style="margin-left: 0.5rem; height: 2.5rem; width: 2.5rem; display: flex; align-items: center; justify-content: center;">
+            <svg xmlns="http://www.w3.org/2000/svg" style="width: 1.25rem; height: 1.25rem;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <script>
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+    
+    themeToggle.addEventListener('click', () => {
+      body.classList.toggle('dark');
+      themeToggle.classList.toggle('theme-toggle-active');
+    });
+  </script>
+</body>
+</html>

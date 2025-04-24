@@ -1,0 +1,77 @@
+# ETL Agents Tag Configuration
+# This file defines tags used for categorizing and organizing data throughout the ETL pipeline
+
+# Data Source Tags
+data_sources:
+  - customer_database
+  - web_analytics
+  - crm_system
+  - marketing_platform
+  - sales_records
+  - survey_responses
+  - social_media
+
+# Data Type Tags
+data_types:
+  - customer
+  - product
+  - transaction
+  - interaction
+  - feedback
+  - demographic
+  - behavioral
+
+# Processing Stage Tags
+processing_stages:
+  - raw
+  - extracted
+  - transformed
+  - loaded
+  - enriched
+  - analyzed
+  - archived
+
+# Analysis Tags
+analysis_tags:
+  - exploratory
+  - descriptive
+  - diagnostic
+  - predictive
+  - prescriptive
+
+# Business Domain Tags
+business_domains:
+  - sales
+  - marketing
+  - customer_service
+  - product_development
+  - operations
+  - finance
+  - human_resources
+
+# Data Quality Tags
+data_quality:
+  - validated
+  - complete
+  - incomplete
+  - requires_cleaning
+  - high_quality
+  - medium_quality
+  - low_quality
+
+# Sensitivity Tags
+sensitivity:
+  - public
+  - internal
+  - confidential
+  - restricted
+  - personal_identifiable_information
+
+# Usage Tags
+usage:
+  - training
+  - testing
+  - validation
+  - production
+  - development
+  - experimental
