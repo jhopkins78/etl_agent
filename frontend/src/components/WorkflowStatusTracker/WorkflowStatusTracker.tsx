@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useDashboard } from '../../context/DashboardContext';
 
 const WorkflowStatusTracker: React.FC = () => {
-  const { currentStep, setCurrentStep, isLoading } = useDashboard();
+  const { workflowStep, setWorkflowStep, isLoading } = useDashboard();
   const [showModal, setShowModal] = useState(false);
   const [selectedStep, setSelectedStep] = useState<number | null>(null);
   
@@ -15,7 +15,7 @@ const WorkflowStatusTracker: React.FC = () => {
   ];
   
   const handleStepClick = (stepId: number) => {
-    if (stepId <= currentStep + 1) {
+    if (stepId <= workflowStep + 1) {
       setSelectedStep(stepId);
       setShowModal(true);
     }
@@ -23,7 +23,7 @@ const WorkflowStatusTracker: React.FC = () => {
   
   const startStep = () => {
     if (selectedStep !== null) {
-      setCurrentStep(selectedStep);
+      setWorkflowStep(selectedStep);
       setShowModal(false);
     }
   };
@@ -33,7 +33,7 @@ const WorkflowStatusTracker: React.FC = () => {
       <div className="flex items-center justify-between mb-md">
         <h2 className="text-lg font-semibold">Workflow Status</h2>
         <div className="flex items-center">
-          <span className="badge badge-primary mr-sm">Step {currentStep + 1} of {steps.length}</span>
+          <span className="badge badge-primary mr-sm">Step {workflowStep + 1} of {steps.length}</span>
           {isLoading && (
             <span className="flex items-center text-sm text-text-secondary dark:text-text-secondary-dark">
               <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -48,10 +48,10 @@ const WorkflowStatusTracker: React.FC = () => {
       
       <div className="space-y-md">
         {steps.map((step, index) => {
-          const isActive = index === currentStep;
-          const isCompleted = index < currentStep;
-          const isPending = index > currentStep;
-          const isDisabled = index > currentStep + 1;
+          const isActive = index === workflowStep;
+          const isCompleted = index < workflowStep;
+          const isPending = index > workflowStep;
+          const isDisabled = index > workflowStep + 1;
           
           return (
             <div 
@@ -165,7 +165,7 @@ const WorkflowStatusTracker: React.FC = () => {
                 className="btn btn-primary"
                 onClick={startStep}
               >
-                {currentStep === selectedStep ? 'Resume' : 'Start'}
+                {workflowStep === selectedStep ? 'Resume' : 'Start'}
               </button>
             </div>
           </div>

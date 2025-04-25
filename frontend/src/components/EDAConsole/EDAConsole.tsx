@@ -388,7 +388,7 @@ const EDAConsole: React.FC = () => {
                   <h3 className="text-md font-medium mb-sm">Outlier Treatment Recommendations</h3>
                   <div className="card-alt p-md">
                     <ul className="list-disc list-inside space-y-xs text-sm">
-                      <li>Remove 2 extreme outliers in GrLivArea (>4000 sq ft with low price)</li>
+                      <li>Remove 2 extreme outliers in GrLivArea (&gt;4000 sq ft with low price)</li>
                       <li>Cap LotArea values above 100,000 sq ft (99th percentile)</li>
                       <li>Log transform right-skewed features (SalePrice, LotArea, GrLivArea)</li>
                       <li>Winsorize TotalBsmtSF at 99th percentile</li>

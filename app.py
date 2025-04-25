@@ -16,13 +16,14 @@ import os
 import json
 import shutil
 import tempfile
+import openai
+import requests
 from flask import Flask, request, jsonify, send_file
 from werkzeug.utils import secure_filename
 from flask_cors import CORS
 from backend.utils.agent_runner import run_eda_task, run_full_pipeline
 from backend.utils.file_utils import save_uploaded_file, read_markdown_file, load_csv_preview
-from insight_agent.tasks.file_router_agent import route_files_from_folder
-import openai 
+from insight_agent.tasks.file_router_agent import route_files_from_folder 
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -33,6 +34,11 @@ app = Flask(__name__)
 
 # Enable CORS
 CORS(app)
+
+headers = {
+    "Authorization": f"Bearer {os.getenv('RENDER_API_KEY')}",
+    "Accept": "application/json"
+}
 
 # Configuration
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB max upload size
@@ -45,6 +51,52 @@ app.config['SAMPLE_DATA_PATH'] = os.path.join(app.config['UPLOAD_FOLDER'], 'data
 os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'reports'), exist_ok=True)
 os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'data', 'enriched'), exist_ok=True)
 os.makedirs(os.path.join(app.config['UPLOAD_FOLDER'], 'uploads'), exist_ok=True)
+
+# 6. Routes
+@app.route('/trigger-deploy', methods=['POST'])
+def trigger_deploy():
+    service_id = os.getenv('RENDER_SERVICE_ID')
+    if not service_id:
+        return jsonify({"error": "RENDER_SERVICE_ID not set"}), 400
+
+    url = f"https://api.render.com/v1/services/{service_id}/deploys"
+    response = requests.post(url, headers=headers, json={"clearCache": False})
+
+    if response.status_code == 201:
+        return jsonify({"message": "Deploy triggered successfully"}), 201
+    else:
+        return jsonify(response.json()), response.status_code
+    
+@app.route('/generate-insight', methods=['POST'])
+def generate_insight():
+    data = request.get_json()
+    report_text = data.get('report')
+
+    print("Received request for GPT insight generation...")
+
+    data = request.get_json()
+    report_text = data.get('report')
+    print("📝 Report Text:", report_text)
+
+    if not report_text:
+        return jsonify({"error": "No report content provided"}), 400
+
+    openai.api_key = os.getenv("OPENAI_API_KEY")
+
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a data science assistant. Generate clear, executive-level insights."},
+                {"role": "user", "content": report_text}
+            ]
+        )
+        summary = response.choices[0].message.content.strip()
+        print("✅ Generated Insight:", summary)
+        return jsonify({"insight": summary})
+    except Exception as e:
+        print("❌ Error during GPT call:", e)
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/upload-assignment', methods=['POST'])
 def upload_assignment():
